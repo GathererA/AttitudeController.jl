@@ -94,7 +94,7 @@ function attitude_lqr(Aq::Array{Float64,3}, Bq::Array{Float64,3}, Q_lqr::Abstrac
     S[:,:,N] = Qf_lqr
     for k = (N-1):-1:1
         # Compute control gains
-        K[:,:,k] = (R_lqr + B[:,:,k]'*S[:,:,k+1]*B[:,:,k])\(B[:,:,k]'*S[:,:,k+1]*A[:,:,k])        # Calculate cost-to-go for backward propagation
+        K[:,:,k] = inv(R_lqr + B[:,:,k]'*S[:,:,k+1]*B[:,:,k])*(B[:,:,k]'*S[:,:,k+1]*A[:,:,k])        # Calculate cost-to-go for backward propagation
         S[:,:,k]= Q_lqr + K[:,:,k]'*R_lqr*K[:,:,k] + (A[:,:,k]-B[:,:,k]*K[:,:,k])'*S[:,:,k+1]*(A[:,:,k]-B[:,:,k]*K[:,:,k])
     end
     K
@@ -253,4 +253,16 @@ function interpolate_rows(t::Vector{T}, X::Matrix{T}, interpolation=:cubic) wher
         end
         itr(1:n,i)
     end
+end
+
+
+function L_decomp(q)
+    #this function takes in a desired quaternion computes the L decomposition
+    L = [q[1] -q[2] -q[3] -q[4];
+         -q[2] q[1] q[4] -q[3];
+         -q[3] -q[4] q[1] q[2];
+         -q[4] q[3] -q[2] q[1]]
+
+         return L
+
 end
